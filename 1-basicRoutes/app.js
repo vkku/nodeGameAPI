@@ -16,65 +16,24 @@
 const express = require('express');
 
 const app = express();
-{
 var recordId = null;
 var points = null;
 var Airtable = require('airtable');
-var base = new Airtable({apiKey: 'keykNnQmC4xKDtDd0'}).base('appc2IoDG9qmF8sf6');
+var base = new Airtable({
+  apiKey: 'keykNnQmC4xKDtDd0'
+}).base('appc2IoDG9qmF8sf6');
 //var toBePoints;
 // [START hello_world]
 // Say hello!
 app.get('/dzgame/:nick', (req, res) => {
 
-	console.log('Start'); 
-  base('dzPoints').select({
-    // Selecting the first 3 records in Grid view:
-    maxRecords: 3,
-    view: "Grid view"
-}).eachPage(function page(records, fetchNextPage) {
-    // This function (`page`) will get called for each page of records.
+  retrieveIdAndPoints(req.params.nick, updatePoints);
 
-    records.forEach(function(record) {
-        console.log('Retrieved', record.get('Name')); //TODO : Comment out
-       if(record.get('Name') == req.params.nick) {
-	recordId = record.id;
-       points = record.get('Points');
-	console.log('Name : ' + record.get('Name') + ' id  : ' + recordId + ' Points : ' + points);
-	}
-    });
 
-    // To fetch the next page of records, call `fetchNextPage`.
-    // If there are more records, `page` will get called again.
-    // If there are no more records, `done` will get called.
-    fetchNextPage();
-
-}, function done(err) {
-    if (err) { console.error(err); return;}
-}), function () {
-
-console.log(' Name & ID after retrieval end : ' + recordId + ' Points : ' + points);
-
-var toBePoints =  parseInt(points) + 1;
-console.log('To be Points : ' + points);
-//var Points = "5";
-var Points = toBePoints.toString();
-console.log('Updating Points : ' + Points);
-base('dzPoints').update('rec6EJlqjjPm8W57v', {
-//	"Points": "5"
-	Points
-}, function(err, record) {
-    if (err) { console.error(err); return; }
-});
-
-	toBePoints = 0;
-	points = 0;
-	recordId = null;
-};
   res.status(200).send('Hello, ' + req.params.nick);
-	console.log('End');
-  
+  console.log('End');
+
 });
-}
 // [END hello_world]
 
 if (module === require.main) {
@@ -88,3 +47,59 @@ if (module === require.main) {
 }
 
 module.exports = app;
+
+function retrieveIdAndPoints(nick, callback) {
+  console.log('Start');
+  base('dzPoints').select({
+    // Selecting the first 3 records in Grid view:
+    maxRecords: 3,
+    view: "Grid view"
+  }).eachPage(function page(records, fetchNextPage) {
+    // This function (`page`) will get called for each page of records.
+
+    records.forEach(function(record) {
+      console.log('Retrieved', record.get('Name')); //TODO : Comment out
+      if (record.get('Name') == nick) {
+        recordId = record.id;
+        points = record.get('Points');
+        console.log('Name : ' + record.get('Name') + ' id  : ' + recordId + ' Points : ' + points);
+      }
+    });
+
+    // To fetch the next page of records, call `fetchNextPage`.
+    // If there are more records, `page` will get called again.
+    // If there are no more records, `done` will get called.
+    fetchNextPage();
+
+  }, function done(err) {
+    callback();
+    if (err) {
+      console.error(err);
+      return;
+    }
+  });
+}
+
+//console.log(' Name & ID after retrieval end : ' + recordId + ' Points : ' + points);
+
+function updatePoints() {
+  var toBePoints = parseInt(points) + 1;
+  console.log('To be Points : ' + points);
+  //var Points = "5";
+  var Points = toBePoints.toString();
+  console.log('Updating Points : ' + Points);
+  base('dzPoints').update(recordId, {
+    //  "Points": "5"
+    Points
+  }, function(err, record) {
+    if (err) {
+      console.error(err);
+      return;
+    }
+  });
+
+  toBePoints = 0;
+  points = 0;
+  recordId = null;
+
+}
