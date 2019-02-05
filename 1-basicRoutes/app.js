@@ -80,23 +80,25 @@ function retrieveIdAndPoints(nick, callback) {
   });
 }
 
-//console.log(' Name & ID after retrieval end : ' + recordId + ' Points : ' + points);
 
 function updatePoints() {
   var toBePoints = parseInt(points) + 1;
-  console.log('To be Points : ' + points);
-  //var Points = "5";
   var Points = toBePoints.toString();
   console.log('Updating Points : ' + Points);
-  base('dzPoints').update(recordId, {
-    //  "Points": "5"
-    Points
-  }, function(err, record) {
-    if (err) {
-      console.error(err);
-      return;
-    }
-  });
+  var currDate = new Date();
+  var currHour = currDate.getHours();
+  var currMin = currDate.getMinutes();
+  if (!(currHour && currMin)) {
+
+    base('dzPoints').update(recordId, {
+      Points
+    }, function(err, record) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
+  }
 
   toBePoints = 0;
   points = 0;
