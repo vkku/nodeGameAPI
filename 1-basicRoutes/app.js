@@ -18,6 +18,8 @@ const express = require('express');
 const app = express();
 var recordId = null;
 var points = null;
+var retmsg = 'I returned a trip from the Internet - Ralph';
+var securedPoint = false;
 var Airtable = require('airtable');
 var base = new Airtable({
   apiKey: 'keykNnQmC4xKDtDd0'
@@ -29,8 +31,10 @@ app.get('/dzgame/:nick', (req, res) => {
 
   retrieveIdAndPoints(req.params.nick, updatePoints);
 
-
-  res.status(200).send('Hello, ' + req.params.nick);
+  if(securedPoint){
+    retmsg = "Ahoy ! yaya captain for the day !";
+  }
+  res.status(200).send(retmsg + req.params.nick);
   console.log('End');
 
 });
@@ -58,7 +62,7 @@ function retrieveIdAndPoints(nick, callback) {
     // This function (`page`) will get called for each page of records.
 
     records.forEach(function(record) {
-      console.log('Retrieved', record.get('Name')); //TODO : Comment out
+      //console.log('Retrieved', record.get('Name'));
       if (record.get('Name') == nick) {
         recordId = record.id;
         points = record.get('Points');
@@ -98,10 +102,15 @@ function updatePoints() {
         return;
       }
     });
+    securedPoint = true;
   }
 
   toBePoints = 0;
   points = 0;
   recordId = null;
 
+}
+
+function refreshRecords(){
+  
 }
