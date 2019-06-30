@@ -18,8 +18,10 @@ const express = require('express');
 const app = express();
 var recordId = null;
 var points = null;
+var limReached = [];
 var retmsg = 'I returned a trip from the Internet - Ralph';
 var securedPoint = false;
+var dateLim = null;
 var Airtable = require('airtable');
 var base = new Airtable({
   apiKey: 'keykNnQmC4xKDtDd0'
@@ -34,7 +36,7 @@ app.get('/dzgame/:nick', (req, res) => {
   if(securedPoint){
     retmsg = "Ahoy ! yaya captain for the day !";
   }
-  res.status(200).send(retmsg + req.params.nick);
+  res.status(200).send(retmsg + '\n' + req.params.nick);
   console.log('End');
 
 });
@@ -66,7 +68,9 @@ function retrieveIdAndPoints(nick, callback) {
       if (record.get('Name') == nick) {
         recordId = record.id;
         points = record.get('Points');
-        console.log('Name : ' + record.get('Name') + ' id  : ' + recordId + ' Points : ' + points);
+        if( null != record.get('date'))
+        dateLim = record.get('date').toString();
+        console.log('Name : ' + record.get('Name') + ' id  : ' + recordId + ' Points : ' + points + ' date  : ' + dateLim);
       }
     });
 
@@ -86,16 +90,17 @@ function retrieveIdAndPoints(nick, callback) {
 
 
 function updatePoints() {
-  var toBePoints = parseInt(points) + 1;
-  var Points = toBePoints.toString();
-  console.log('Updating Points : ' + Points);
   var currDate = new Date();
   var currHour = currDate.getHours();
   var currMin = currDate.getMinutes();
-  if (!(currHour && currMin)) {
-
+  var dateStr = currDate.getDate().toString();
+  if (!(currHour && currMin) && dateLim != dateStr) {
+  var toBePoints = parseInt(points) + 1;
+  var Points = toBePoints.toString();
+  console.log('Updating Points : ' + Points);
     base('dzPoints').update(recordId, {
-      Points
+      Points,
+      "date": dateStr
     }, function(err, record) {
       if (err) {
         console.error(err);
@@ -111,6 +116,6 @@ function updatePoints() {
 
 }
 
-function refreshRecords(){
-  
+function refreshRecords(nick){
+  retrieveIdAndPoints(nck, null);
 }
