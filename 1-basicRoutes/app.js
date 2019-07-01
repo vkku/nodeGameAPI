@@ -15,14 +15,22 @@
 
 const express = require('express');
 
+var cors = require('cors')
+
 const app = express();
+var users = []
+var user = {};
 var recordId = null;
 var points = null;
 var limReached = [];
-var retmsg = 'I returned a trip from the Internet - Ralph';
+var retmsg = 'I returned a trip from the Internet - Ralph ';
 var securedPoint = false;
 var dateLim = null;
 var Airtable = require('airtable');
+
+
+app.use(cors())
+
 var base = new Airtable({
   apiKey: 'keykNnQmC4xKDtDd0'
 }).base('appc2IoDG9qmF8sf6');
@@ -33,10 +41,12 @@ app.get('/dzgame/:nick', (req, res) => {
 
   retrieveIdAndPoints(req.params.nick, updatePoints);
 
-  if(securedPoint){
-    retmsg = "Ahoy ! yaya captain for the day !";
-  }
-  res.status(200).send(retmsg + '\n' + req.params.nick);
+  //if(securedPoint){
+  //  retmsg = "Ahoy ! I'm the captain for the day !";
+  //}
+  //res.status(200).send(retmsg + '\n' + req.params.nick);
+  res.status(200).send(JSON.stringify(users));
+  users.length = 0;
   console.log('End');
 
 });
@@ -70,6 +80,9 @@ function retrieveIdAndPoints(nick, callback) {
         points = record.get('Points');
         if( null != record.get('date'))
         dateLim = record.get('date').toString();
+        user.nick = nick;
+        user.score = points;
+        users.push(user);
         console.log('Name : ' + record.get('Name') + ' id  : ' + recordId + ' Points : ' + points + ' date  : ' + dateLim);
       }
     });
