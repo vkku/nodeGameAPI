@@ -29,8 +29,9 @@
     "cover": "nyc --cache npm test; nyc report --reporter=html"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "4.16.4"
+    "cors": "",
+    "express": "4.16.4",
+    "airtable": ""
   },
   "devDependencies": {
     "@google-cloud/nodejs-repo-tools": "^3.0.0",
